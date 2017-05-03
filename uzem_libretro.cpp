@@ -45,6 +45,7 @@ extern input_driver_t input_driver_libretro;
 extern video_driver_t video_driver_libretro;
 
 static uint32_t *framebuffer = NULL;
+bool done_rendering;
 
 static struct retro_log_callback logging;
 static retro_log_printf_t log_cb;
@@ -71,6 +72,9 @@ void retro_init(void)
 	uzebox.idrv = &input_driver_libretro;
 	uzebox.vdrv = &video_driver_libretro;
 
+   uzebox.vdrv->framebuffer = framebuffer;
+   uzebox.vdrv->stride = 720;
+   
 	uzebox.init_gui();
 	uzebox.init_joysticks();
 }
@@ -265,6 +269,8 @@ void retro_run(void)
 	unsigned height = 224;
 
 	/* Try rendering straight into VRAM if we can. */
+   
+   /*
 	struct retro_framebuffer fb = {0};
 	fb.width = width;
 	fb.height = height;
@@ -276,11 +282,19 @@ void retro_run(void)
 		uzebox.vdrv->framebuffer = framebuffer;
 		uzebox.vdrv->stride = width;
 	}
-
+   */
+    
 	while (uzebox.scanline_count == -999)
 		uzebox.exec();
 	while (uzebox.scanline_count != -999)
 		uzebox.exec();
+  
+   /*
+   done_rendering = false;
+   while (!done_rendering)
+      uzebox.exec();
+   */
+   
 
 	video_cb(uzebox.vdrv->framebuffer, width, height, uzebox.vdrv->stride << 2);
 }

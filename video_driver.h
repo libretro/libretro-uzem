@@ -43,6 +43,6 @@ typedef struct video_driver {
 	void (*set_title)(char *title);
 } video_driver_t;
 
-video_driver_t * video_driver_get_default();
+//video_driver_t * video_driver_get_default();
 
 #endif

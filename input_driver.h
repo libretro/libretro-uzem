@@ -80,6 +80,6 @@ typedef struct input_driver {
 	void (*joystick_close)(int idx);
 } input_driver_t;
 
-input_driver_t * input_driver_get_default();
+//input_driver_t * input_driver_get_default();
 
 #endif

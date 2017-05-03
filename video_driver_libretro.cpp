@@ -25,6 +25,7 @@ THE SOFTWARE.
 #include "avr8.h"
 #include "video_driver.h"
 
+extern bool done_rendering;
 extern video_driver_t video_driver_libretro;
 
 static bool video_driver_libretro_init(const char *caption, bool fullscreen, int sdl_flags)
@@ -48,6 +49,7 @@ static void video_driver_libretro_render_line(unsigned int scanline, uint8_t *sr
 
 static void video_driver_libretro_update_frame()
 {
+   done_rendering = true;
 }
 
 static void video_driver_libretro_update_mouse()

@@ -35,6 +35,6 @@ typedef struct audio_driver {
 	void (*push)(uint8_t value);
 } audio_driver_t;
 
-audio_driver_t * audio_driver_get_default();
+//audio_driver_t * audio_driver_get_default();
 
 #endif
