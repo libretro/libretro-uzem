@@ -1,0 +1,4 @@
+INCFLAGS += -I$(CORE_DIR)
+
+SOURCES_CXX := $(wildcard $(CORE_DIR)/*.cpp)
+
