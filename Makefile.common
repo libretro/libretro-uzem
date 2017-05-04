@@ -1,4 +1,11 @@
 INCFLAGS += -I$(CORE_DIR)
 
-SOURCES_CXX := $(wildcard $(CORE_DIR)/*.cpp)
+SOURCES_CXX := \
+					$(CORE_DIR)/audio_driver_libretro.cpp \
+					$(CORE_DIR)/avr8.cpp \
+					$(CORE_DIR)/input_driver_libretro.cpp \
+					$(CORE_DIR)/SDEmulator.cpp \
+					$(CORE_DIR)/uzem_libretro.cpp \
+					$(CORE_DIR)/uzerom.cpp \
+					$(CORE_DIR)/video_driver_libretro.cpp
 
