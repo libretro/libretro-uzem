@@ -37,6 +37,7 @@ THE SOFTWARE.
 #include "input_driver.h"
 #include "video_driver.h"
 
+#ifndef __LIBRETRO__
 #if defined(__WIN32__)
     #include <windows.h> // Win32 memory mapped I/O
     #include <winioctl.h>
@@ -44,6 +45,7 @@ THE SOFTWARE.
     #include <sys/mman.h> // Linux memory mapped I/O
 #else
     #include <sys/mmap.h> // Unix memory mapped I/O
+#endif
 #endif
 
 // If you're building from the command line or on a non-MS compiler you'll need
