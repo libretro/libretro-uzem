@@ -27,8 +27,9 @@ THE SOFTWARE.
 
 extern retro_audio_sample_t audio_cb;
 
-static bool audio_driver_libretro_init()
+static bool audio_driver_libretro_init(void)
 {
+   return true;
 }
 
 static void audio_driver_libretro_flush()
