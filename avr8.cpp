@@ -40,6 +40,7 @@ More info at uzebox.org
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <ios>
 #include <iostream>
 #include <queue>
 
