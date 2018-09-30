@@ -30,6 +30,7 @@ extern video_driver_t video_driver_libretro;
 
 static bool video_driver_libretro_init(const char *caption, bool fullscreen, int sdl_flags)
 {
+   return true;
 }
 
 static uint32_t video_driver_libretro_map_rgb(uint8_t red, uint8_t green, uint8_t blue)
