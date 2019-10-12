@@ -72,7 +72,7 @@ void retro_init(void)
 	uzebox.idrv = &input_driver_libretro;
 	uzebox.vdrv = &video_driver_libretro;
 
-   uzebox.vdrv->framebuffer = framebuffer;
+   //uzebox.vdrv->framebuffer = framebuffer;
    uzebox.vdrv->stride = 720;
    
 	uzebox.init_gui();
@@ -270,7 +270,7 @@ void retro_run(void)
 
 	/* Try rendering straight into VRAM if we can. */
    
-   /*
+   
 	struct retro_framebuffer fb = {0};
 	fb.width = width;
 	fb.height = height;
@@ -282,7 +282,7 @@ void retro_run(void)
 		uzebox.vdrv->framebuffer = framebuffer;
 		uzebox.vdrv->stride = width;
 	}
-   */
+   
     
 	while (uzebox.scanline_count == -999)
 		uzebox.exec();
