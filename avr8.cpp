@@ -2538,6 +2538,7 @@ void avr8::shutdown(int errcode){
     exit(errcode);
 }
 
+#ifndef __LIBRETRO__
 /* This function is called from GDB while the cpu is stopped */
 void avr8::idle(void){
     SDL_Event event;
@@ -2551,4 +2552,4 @@ void avr8::idle(void){
 
 	usleep(5000);
 }
-
+#endif
