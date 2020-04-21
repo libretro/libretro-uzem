@@ -241,9 +241,10 @@ inline static void store_bit_1(u8 &dest, unsigned int bit, unsigned int value)
 u32 hsync_more_col;
 u32 hsync_less_col;
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && !defined(__LIBRETRO__)
 FILE* avconv_video = NULL;
 FILE* avconv_audio = NULL;
+#define SUPPORTS_RECORDING
 #endif // __EMSCRIPTEN__
 
 void avr8::spi_calculateClock(){
@@ -293,7 +294,7 @@ void avr8::write_io_x(u8 addr,u8 value)
 #endif // __EMSCRIPTEN__
 			adrv->push(value);
 
-#ifndef __EMSCRIPTEN__
+#ifdef SUPPORTS_RECORDING
 			//Send audio byte to ffmpeg
 			if(recordMovie && avconv_audio) {
 				fwrite(&value, 1, 1, avconv_audio);
@@ -336,7 +337,7 @@ void avr8::write_io_x(u8 addr,u8 value)
 				if (scanline_count == 224)
 				{
 					vdrv->update_frame();
-#ifndef __EMSCRIPTEN__
+#ifdef SUPPORTS_RECORDING
 					//Send video frame to ffmpeg
 					if (recordMovie && avconv_video) vdrv->record_frame(avconv_video);
 #endif // __EMSCRIPTEN__
@@ -2510,7 +2511,7 @@ void avr8::shutdown(int errcode){
     	fclose(captureFile);
     }
 
-#ifndef __EMSCRIPTEN__
+#ifdef SUPPORTS_RECORDING
     //movie recording
     if(recordMovie){
 		if (avconv_video) pclose(avconv_video);
