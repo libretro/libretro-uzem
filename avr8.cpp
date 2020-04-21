@@ -2487,7 +2487,7 @@ void avr8::LoadEEPROMFile(const char* filename){
 }
 
 void avr8::shutdown(int errcode){
-#if defined(__WIN32__)
+#if defined(__WIN32__) && !defined(__LIBRETRO__)
     if(hDisk != INVALID_HANDLE_VALUE){
         CloseHandle (hDisk);        
         VirtualFree (lpSector, 0, MEM_RELEASE);

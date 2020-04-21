@@ -246,7 +246,7 @@ struct avr8
 		spiByte(0), spiClock(0), spiTransfer(0), spiState(SPI_IDLE_STATE), spiResponsePtr(0), spiResponseEnd(0),
 
 		/*SD Emulation*/
-#if defined(__WIN32__)
+#if defined(__WIN32__) && !defined(__LIBRETRO__)
 		hDisk(INVALID_HANDLE_VALUE),
 #endif
  sdImage(0),emulatedMBR(0),SDpath(NULL)
@@ -430,7 +430,7 @@ public:
 
     /*SD Emulation*/
 
-#if defined(__WIN32__)
+#if defined(__WIN32__) && !defined(__LIBRETRO__)
     HANDLE hDisk;
     LPBYTE lpSector;
 #endif
