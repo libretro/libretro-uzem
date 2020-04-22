@@ -35,8 +35,6 @@ THE SOFTWARE.
 #include <stdarg.h>
 #include <time.h>
 
-#define printerr(fmt,...) fprintf(stderr,fmt,##__VA_ARGS__)
-
 avr8 uzebox;
 static char sd_path[4096];
 
@@ -47,8 +45,6 @@ extern video_driver_t video_driver_libretro;
 static uint32_t *framebuffer = NULL;
 bool done_rendering;
 
-static struct retro_log_callback logging;
-static retro_log_printf_t log_cb;
 static float last_aspect;
 static float last_sample_rate;
 
@@ -60,6 +56,8 @@ static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 	vfprintf(stderr, fmt, va);
 	va_end(va);
 }
+
+static retro_log_printf_t log_cb = fallback_log;
 
 unsigned retro_api_version(void)
 {
@@ -136,12 +134,12 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 
 void retro_set_environment(retro_environment_t cb)
 {
+	struct retro_log_callback logging;
+
 	environ_cb = cb;
 
 	if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
 		log_cb = logging.log;
-	else
-		log_cb = fallback_log;
 
 	bool no_content = false;
 	cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_content);
