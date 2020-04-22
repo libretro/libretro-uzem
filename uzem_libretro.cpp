@@ -35,6 +35,8 @@ THE SOFTWARE.
 #include <stdarg.h>
 #include <time.h>
 
+#include <retro_endianness.h>
+
 avr8 uzebox;
 static char sd_path[4096];
 
@@ -232,7 +234,8 @@ bool retro_load_game(const struct retro_game_info *info)
 	}
 
 	RomHeader *header = (RomHeader *)info->data;
-	if (info->size != HEADER_SIZE + header->progSize) {
+	if (info->size != HEADER_SIZE + retro_le_to_cpu32(header->progSize)
+		|| retro_le_to_cpu32(header->progSize) > sizeof (uzebox.progmem)) {
 		return false;
 	}
 
@@ -242,7 +245,19 @@ bool retro_load_game(const struct retro_game_info *info)
 	}
 
 	uint8_t *buffer = (uint8_t *)info->data;
-	memcpy((unsigned char*)(uzebox.progmem), buffer + HEADER_SIZE, header->progSize);
+#if RETRO_IS_LITTLE_ENDIAN
+	memcpy((unsigned char*)(uzebox.progmem), buffer + HEADER_SIZE, retro_le_to_cpu32(header->progSize));
+#elif RETRO_IS_BIG_ENDIAN
+	{
+		uint16_t *outptr = uzebox.progmem;
+		const uint16_t *inptr = (const uint16_t *) (buffer + HEADER_SIZE);
+		int size = retro_le_to_cpu32(header->progSize) / 2;
+		while (size--)
+			*outptr++ = retro_le_to_cpu16(*inptr++);
+	}
+#else
+#error Wrong endianness headers
+#endif
 
 	framebuffer = (uint32_t *)malloc(sizeof(uint32_t) * 720 * 224);
 

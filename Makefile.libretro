@@ -203,7 +203,7 @@ COMMONFLAGS += -O3 -DNDEBUG -DGIT_VERSION=\"$(GIT_VERSION)\"
 endif
 
 CORE_DIR    := .
-INCFLAGS    :=
+INCFLAGS    := -Ilibretro-common/include
 SOURCES_C   :=
 SOURCES_CXX :=
 
