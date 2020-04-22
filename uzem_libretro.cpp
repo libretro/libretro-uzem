@@ -35,7 +35,7 @@ THE SOFTWARE.
 #include <stdarg.h>
 #include <time.h>
 
-#define printerr(fmt,...) fprintf(stderr,fmt,##__VA_ARGS__)
+#include <retro_endianness.h>
 
 avr8 uzebox;
 static char sd_path[4096];
@@ -47,8 +47,6 @@ extern video_driver_t video_driver_libretro;
 static uint32_t *framebuffer = NULL;
 bool done_rendering;
 
-static struct retro_log_callback logging;
-static retro_log_printf_t log_cb;
 static float last_aspect;
 static float last_sample_rate;
 
@@ -60,6 +58,8 @@ static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 	vfprintf(stderr, fmt, va);
 	va_end(va);
 }
+
+static retro_log_printf_t log_cb = fallback_log;
 
 unsigned retro_api_version(void)
 {
@@ -136,12 +136,12 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 
 void retro_set_environment(retro_environment_t cb)
 {
+	struct retro_log_callback logging;
+
 	environ_cb = cb;
 
 	if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
 		log_cb = logging.log;
-	else
-		log_cb = fallback_log;
 
 	bool no_content = false;
 	cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_content);
@@ -234,7 +234,8 @@ bool retro_load_game(const struct retro_game_info *info)
 	}
 
 	RomHeader *header = (RomHeader *)info->data;
-	if (info->size != HEADER_SIZE + header->progSize) {
+	if (info->size != HEADER_SIZE + retro_le_to_cpu32(header->progSize)
+		|| retro_le_to_cpu32(header->progSize) > sizeof (uzebox.progmem)) {
 		return false;
 	}
 
@@ -244,7 +245,19 @@ bool retro_load_game(const struct retro_game_info *info)
 	}
 
 	uint8_t *buffer = (uint8_t *)info->data;
-	memcpy((unsigned char*)(uzebox.progmem), buffer + HEADER_SIZE, header->progSize);
+#if RETRO_IS_LITTLE_ENDIAN
+	memcpy((unsigned char*)(uzebox.progmem), buffer + HEADER_SIZE, retro_le_to_cpu32(header->progSize));
+#elif RETRO_IS_BIG_ENDIAN
+	{
+		uint16_t *outptr = uzebox.progmem;
+		const uint16_t *inptr = (const uint16_t *) (buffer + HEADER_SIZE);
+		int size = retro_le_to_cpu32(header->progSize) / 2;
+		while (size--)
+			*outptr++ = retro_le_to_cpu16(*inptr++);
+	}
+#else
+#error Wrong endianness headers
+#endif
 
 	framebuffer = (uint32_t *)malloc(sizeof(uint32_t) * 720 * 224);
 
