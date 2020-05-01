@@ -127,10 +127,10 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 	};
 
 	info->geometry = (struct retro_game_geometry){
-		.base_width = half_width ? 360 : 720,
-		.base_height = half_width ? 224 : 448,
-		.max_width = half_width ? 360 : 720,
-		.max_height = half_width ? 224 : 448,
+		.base_width = half_width ? 360U : 720U,
+		.base_height = half_width ? 224U : 448U,
+		.max_width = half_width ? 360U : 720U,
+		.max_height = half_width ? 224U : 448U,
 		.aspect_ratio = 630.0/448.0,
 	};
 }
