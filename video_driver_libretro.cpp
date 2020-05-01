@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include "video_driver.h"
 
 extern bool done_rendering;
+extern bool half_width;
 extern video_driver_t video_driver_libretro;
 
 static bool video_driver_libretro_init(const char *caption, bool fullscreen, int sdl_flags)
@@ -43,9 +44,15 @@ static uint32_t video_driver_libretro_map_rgb(uint8_t red, uint8_t green, uint8_
 // Performs a shrink by 2
 static void video_driver_libretro_render_line(unsigned int scanline, uint8_t *src, unsigned int spos, uint32_t *palette)
 {
-	uint32_t *dest = (uint32_t *)((uint8_t *)video_driver_libretro.framebuffer + scanline * video_driver_libretro.stride * 4);
-	for (unsigned int i = 0; i < VIDEO_DISP_WIDTH; i++)
-		dest[i] = palette[src[((i << 1) + spos) & 0x7FFU]];
+	if (half_width) {
+		uint32_t *dest = (uint32_t *)((uint8_t *)video_driver_libretro.framebuffer + scanline * video_driver_libretro.stride * 4);
+		for (unsigned int i = 0; i < VIDEO_DISP_WIDTH / 2; i++)
+			dest[i] = palette[src[((i << 2) + spos) & 0x7FFU]];
+	} else {
+		uint32_t *dest = (uint32_t *)((uint8_t *)video_driver_libretro.framebuffer + scanline * video_driver_libretro.stride * 4);
+		for (unsigned int i = 0; i < VIDEO_DISP_WIDTH; i++)
+			dest[i] = palette[src[((i << 1) + spos) & 0x7FFU]];
+	}
 }
 
 static void video_driver_libretro_update_frame()

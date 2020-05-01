@@ -46,6 +46,7 @@ extern video_driver_t video_driver_libretro;
 
 static uint32_t *framebuffer = NULL;
 bool done_rendering;
+bool half_width;
 
 static float last_aspect;
 static float last_sample_rate;
@@ -126,10 +127,10 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 	};
 
 	info->geometry = (struct retro_game_geometry){
-		.base_width = 720,
-		.base_height = 448,
-		.max_width = 720,
-		.max_height = 448,
+		.base_width = half_width ? 360 : 720,
+		.base_height = half_width ? 224 : 448,
+		.max_width = half_width ? 360 : 720,
+		.max_height = half_width ? 224 : 448,
 		.aspect_ratio = 630.0/448.0,
 	};
 }
@@ -217,6 +218,13 @@ bool retro_load_game(const struct retro_game_info *info)
 		{ 0},
 	};
 
+	// TODO: make this configurable
+#if defined (_PSP) || defined (_3DS)
+	half_width = true;
+#else
+	half_width = false;
+#endif
+
 	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
 	enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
@@ -278,7 +286,7 @@ bool retro_load_game_special(unsigned type, const struct retro_game_info *info, 
 
 void retro_run(void)
 {
-	unsigned width = 720;
+	unsigned width = half_width ? 360 : 720;
 	unsigned height = 224;
 
 	/* Try rendering straight into VRAM if we can. */

@@ -115,7 +115,7 @@ else ifeq ($(platform), psp1)
 	CC = psp-gcc$(EXE_EXT)
 	CXX = psp-g++$(EXE_EXT)
 	AR = psp-ar$(EXE_EXT)
-	COMMONFLAGS += -DPSP -G0
+	COMMONFLAGS += -DPSP -G0 -I$(shell psp-config --pspsdk-path)/include
 	STATIC_LINKING = 1
 
 # Vita
