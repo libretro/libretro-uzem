@@ -1,4 +1,4 @@
-INCFLAGS += -I$(CORE_DIR)
+INCFLAGS += -I$(CORE_DIR) -I$(CORE_DIR)/libretro-common/include
 
 SOURCES_CXX := \
 					$(CORE_DIR)/audio_driver_libretro.cpp \
