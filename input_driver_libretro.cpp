@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include "input_driver.h"
 
 #include "libretro.h"
+#include "compiler.h"
 
 extern input_driver_t input_driver_libretro;
 
@@ -102,14 +103,14 @@ static void input_driver_libretro_joystick_close(int idx)
 }
 
 input_driver_t input_driver_libretro = {
-	.buttons = { 0 },
-	.mouse_scale = 1,
-	.pad_mode = SNES_PAD,
-    .poll = input_driver_libretro_poll,
-	.wait = input_driver_libretro_wait,
-	.get_mouse_state = input_driver_libretro_get_mouse_state,
-	.joystick_init = input_driver_libretro_joystick_init,
-	.joystick_shutdown = input_driver_libretro_joystick_shutdown,
-	.joystick_open = input_driver_libretro_joystick_open,
-	.joystick_close = input_driver_libretro_joystick_close,
+	INIT_FIELD(buttons, { 0 }),
+	INIT_FIELD(mouse_scale, 1),
+	INIT_FIELD(pad_mode, SNES_PAD),
+	INIT_FIELD(poll, input_driver_libretro_poll),
+	INIT_FIELD(wait, input_driver_libretro_wait),
+	INIT_FIELD(get_mouse_state, input_driver_libretro_get_mouse_state),
+	INIT_FIELD(joystick_init, input_driver_libretro_joystick_init),
+	INIT_FIELD(joystick_shutdown, input_driver_libretro_joystick_shutdown),
+	INIT_FIELD(joystick_open, input_driver_libretro_joystick_open),
+	INIT_FIELD(joystick_close, input_driver_libretro_joystick_close),
 };

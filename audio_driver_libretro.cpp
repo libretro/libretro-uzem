@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "libretro.h"
 #include "audio_driver.h"
+#include "compiler.h"
 
 extern retro_audio_sample_t audio_cb;
 
@@ -43,7 +44,7 @@ static void audio_driver_libretro_push(uint8_t value)
 }
 
 audio_driver_t audio_driver_libretro = {
-    .init = audio_driver_libretro_init,
-	.flush = audio_driver_libretro_flush,
-	.push = audio_driver_libretro_push
+	INIT_FIELD(init, audio_driver_libretro_init),
+	INIT_FIELD(flush, audio_driver_libretro_flush),
+	INIT_FIELD(push, audio_driver_libretro_push)
 };
