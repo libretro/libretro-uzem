@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "avr8.h"
 #include "video_driver.h"
+#include "compiler.h"
 
 extern bool done_rendering;
 extern bool half_width;
@@ -73,15 +74,15 @@ static void video_driver_libretro_screenshot(char *filename)
 }
 
 video_driver_t video_driver_libretro = {
-    .width = 720,
-    .height = 448,
-    .framebuffer = NULL,
-    .stride = 0,
-    .init = video_driver_libretro_init,
-    .map_rgb = video_driver_libretro_map_rgb,
-	.render_line = video_driver_libretro_render_line,
-	.update_frame = video_driver_libretro_update_frame,
-	.record_frame = video_driver_libretro_record_frame,
-	.screenshot = video_driver_libretro_screenshot,
-	.update_mouse = video_driver_libretro_update_mouse
+	INIT_FIELD(width, 720),
+	INIT_FIELD(height, 448),
+	INIT_FIELD(framebuffer, NULL),
+	INIT_FIELD(stride, 0),
+	INIT_FIELD(init, video_driver_libretro_init),
+	INIT_FIELD(map_rgb, video_driver_libretro_map_rgb),
+	INIT_FIELD(render_line, video_driver_libretro_render_line),
+	INIT_FIELD(update_frame, video_driver_libretro_update_frame),
+	INIT_FIELD(record_frame, video_driver_libretro_record_frame),
+	INIT_FIELD(screenshot, video_driver_libretro_screenshot),
+	INIT_FIELD(update_mouse, video_driver_libretro_update_mouse)
 };

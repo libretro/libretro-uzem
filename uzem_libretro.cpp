@@ -121,18 +121,14 @@ static cpu_state_buf_t cpu_state_buf;
 
 void retro_get_system_av_info(struct retro_system_av_info *info)
 {
-	info->timing = (struct retro_system_timing){
-		.fps = 2 * 29.97,
-		.sample_rate = AUDIO_FREQUENCY,
-	};
+	info->timing.fps = 2 * 29.97;
+	info->timing.sample_rate = AUDIO_FREQUENCY;
 
-	info->geometry = (struct retro_game_geometry){
-		.base_width = half_width ? 360U : 720U,
-		.base_height = half_width ? 224U : 448U,
-		.max_width = half_width ? 360U : 720U,
-		.max_height = half_width ? 224U : 448U,
-		.aspect_ratio = 630.0/448.0,
-	};
+	info->geometry.base_width = half_width ? 360U : 720U;
+	info->geometry.base_height = half_width ? 224U : 448U;
+	info->geometry.max_width = half_width ? 360U : 720U;
+	info->geometry.max_height = half_width ? 224U : 448U;
+	info->geometry.aspect_ratio = 630.0/448.0;
 }
 
 void retro_set_environment(retro_environment_t cb)
