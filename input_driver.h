@@ -74,8 +74,8 @@ typedef struct input_driver {
 	int (*poll)(SDL_Event *event);
 	int (*wait)(SDL_Event *event);
 	int (*get_mouse_state)(int *mouse_dx, int *mouse_dy);
-	bool (*joystick_init)();
-	void (*joystick_shutdown)();
+	bool (*joystick_init)(void);
+	void (*joystick_shutdown)(void);
 	int (*joystick_open)(int idx);
 	void (*joystick_close)(int idx);
 } input_driver_t;

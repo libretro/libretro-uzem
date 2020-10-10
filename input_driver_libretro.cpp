@@ -26,14 +26,14 @@ THE SOFTWARE.
 #include "input_driver.h"
 
 #include "libretro.h"
-#include "compiler.h"
 
 extern input_driver_t input_driver_libretro;
 
 extern retro_input_poll_t input_poll_cb;
 extern retro_input_state_t input_state_cb;
 
-typedef struct {
+typedef struct
+{
 	unsigned retro_id;
 	uint32_t button_bit;
 } button_lookup_t;
@@ -54,17 +54,18 @@ static button_lookup_t button_lookup[] = {
 	{ 0, 0 },
 };
 
-static void poll_input()
+static void poll_input(void)
 {
-	input_poll_cb();
+   int a;
+   input_poll_cb();
 
-	input_driver_libretro.buttons[0] = 0;
-	for (int a = 0;button_lookup[a].button_bit != 0;a++) {
-		if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, button_lookup[a].retro_id)) {
-			input_driver_libretro.buttons[0] |= button_lookup[a].button_bit;
-		}
-	}
-	input_driver_libretro.buttons[0] = ~input_driver_libretro.buttons[0];
+   input_driver_libretro.buttons[0] = 0;
+   for (a = 0;button_lookup[a].button_bit != 0;a++)
+   {
+      if (input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, button_lookup[a].retro_id))
+         input_driver_libretro.buttons[0] |= button_lookup[a].button_bit;
+   }
+   input_driver_libretro.buttons[0] = ~input_driver_libretro.buttons[0];
 }
 
 static int input_driver_libretro_poll(SDL_Event *event)
@@ -84,33 +85,20 @@ static int input_driver_libretro_get_mouse_state(int *mouse_dx, int *mouse_dy)
 	return 0;
 }
 
-static bool input_driver_libretro_joystick_init()
-{
-	return true;
-}
-
-static void input_driver_libretro_joystick_shutdown()
-{
-}
-
-static int input_driver_libretro_joystick_open(int idx)
-{
-	return idx;
-}
-
-static void input_driver_libretro_joystick_close(int idx)
-{
-}
+static bool input_driver_libretro_joystick_init(void) { return true; }
+static void input_driver_libretro_joystick_shutdown(void) { }
+static int input_driver_libretro_joystick_open(int idx) { return idx; }
+static void input_driver_libretro_joystick_close(int idx) { }
 
 input_driver_t input_driver_libretro = {
-	INIT_FIELD(buttons, { 0 }),
-	INIT_FIELD(mouse_scale, 1),
-	INIT_FIELD(pad_mode, SNES_PAD),
-	INIT_FIELD(poll, input_driver_libretro_poll),
-	INIT_FIELD(wait, input_driver_libretro_wait),
-	INIT_FIELD(get_mouse_state, input_driver_libretro_get_mouse_state),
-	INIT_FIELD(joystick_init, input_driver_libretro_joystick_init),
-	INIT_FIELD(joystick_shutdown, input_driver_libretro_joystick_shutdown),
-	INIT_FIELD(joystick_open, input_driver_libretro_joystick_open),
-	INIT_FIELD(joystick_close, input_driver_libretro_joystick_close),
+	{ 0 },                                    /* buttons */
+	1,                                        /* mouse_scale */
+	SNES_PAD,                                 /* pad_mode */
+	input_driver_libretro_poll,               /* poll */
+	input_driver_libretro_wait,               /* wait */
+	input_driver_libretro_get_mouse_state,    /* get_mouse_state */
+	input_driver_libretro_joystick_init,      /* joystick_init */
+	input_driver_libretro_joystick_shutdown,  /* joystick_shutdown */
+	input_driver_libretro_joystick_open,      /* joystick_open */
+	input_driver_libretro_joystick_close      /* joystick_close */
 };

@@ -36,13 +36,11 @@ typedef struct video_driver {
 	bool (*init)(const char *caption, bool fullscreen, int sdl_flags);
 	uint32_t (*map_rgb)(uint8_t red, uint8_t green, uint8_t blue);
 	void (*render_line)(unsigned int scanline, uint8_t *src, unsigned int spos, uint32_t *palette);
-	void (*update_frame)();
+	void (*update_frame)(void);
 	void (*record_frame)(FILE *avconv_video);
 	void (*screenshot)(char *filename);
-	void (*update_mouse)();
+	void (*update_mouse)(void);
 	void (*set_title)(char *title);
 } video_driver_t;
-
-//video_driver_t * video_driver_get_default();
 
 #endif
