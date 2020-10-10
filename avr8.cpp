@@ -39,10 +39,11 @@ More info at uzebox.org
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#include <direct.h>
+#else
 #include <unistd.h>
-#include <ios>
-#include <iostream>
-#include <queue>
+#endif
 
 #include "avr8.h"
 #ifndef NOGDB
@@ -50,8 +51,6 @@ More info at uzebox.org
 #endif // NOGDB
 #include "SDEmulator.h"
 #include "Keyboard.h"
-
-using namespace std;
 
 #define X		((XL)|(XH<<8))
 #define DEC_X	(XL-- || XH--)
