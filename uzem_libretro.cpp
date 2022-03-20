@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include "uzem.h"
 #include "avr8.h"
 #include "uzerom.h"
-#include <getopt.h>
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
