@@ -1909,7 +1909,7 @@ bool avr8::init_sd()
 	entry.endHead = 0; //TODO
 	entry.endCylinder = 0; //TODO
 	entry.sectorOffset = 1;
-	entry.sectorCount = 4294967296/512; // TODO, update with more realistic info
+	entry.sectorCount = 8388608; // TODO, update with more realistic info
 
 	SDBuildMBR(&entry);
 
