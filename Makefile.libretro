@@ -149,7 +149,7 @@ else ifeq ($(platform), psp1)
 	CC = psp-gcc$(EXE_EXT)
 	CXX = psp-g++$(EXE_EXT)
 	AR = psp-ar$(EXE_EXT)
-	COMMONFLAGS += -DPSP -G0 -I$(shell psp-config --pspsdk-path)/include
+	COMMONFLAGS += -DPSP -DUSE_RGB565 -G0 -I$(shell psp-config --pspsdk-path)/include
 	STATIC_LINKING = 1
 
 # Vita
@@ -267,6 +267,7 @@ SOURCES_CXX :=
 
 include Makefile.common
 
+COMMONFLAGS +=  -DUSE_RGB565
 OBJECTS  = $(SOURCES_CXX:.cpp=.o) $(SOURCES_C:.c=.o)
 CXXFLAGS += -D__LIBRETRO__ -DNOGDB $(fpic) $(INCFLAGS) $(COMMONFLAGS)
 CFLAGS   += -D__LIBRETRO__ -DNOGDB $(fpic) $(INCFLAGS) $(COMMONFLAGS)

@@ -50,6 +50,16 @@ bool half_width;
 static float last_aspect;
 static float last_sample_rate;
 
+#ifdef USE_RGB565
+typedef uint16_t pixel_t;
+#define PIXEL_FORMAT RETRO_PIXEL_FORMAT_RGB565
+#define PIXEL_SIZE_SHIFT 1
+#else
+typedef uint32_t pixel_t;
+#define PIXEL_FORMAT RETRO_PIXEL_FORMAT_XRGB8888
+#define PIXEL_SIZE_SHIFT 2
+#endif
+
 static void fallback_log(enum retro_log_level level, const char *fmt, ...)
 {
 	(void) level;
@@ -222,7 +232,7 @@ bool retro_load_game(const struct retro_game_info *info)
 
 	environ_cb(RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS, desc);
 
-	enum retro_pixel_format fmt = RETRO_PIXEL_FORMAT_XRGB8888;
+	enum retro_pixel_format fmt = PIXEL_FORMAT;
 	if (!environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &fmt)) {
 		log_cb(RETRO_LOG_INFO, "XRGB8888 is not supported.\n");
 		return false;
@@ -291,9 +301,9 @@ void retro_run(void)
 	fb.width = width;
 	fb.height = height;
 	fb.access_flags = RETRO_MEMORY_ACCESS_WRITE;
-	if (environ_cb(RETRO_ENVIRONMENT_GET_CURRENT_SOFTWARE_FRAMEBUFFER, &fb) && fb.format == RETRO_PIXEL_FORMAT_XRGB8888) {
+	if (environ_cb(RETRO_ENVIRONMENT_GET_CURRENT_SOFTWARE_FRAMEBUFFER, &fb) && fb.format == PIXEL_FORMAT) {
 		uzebox.vdrv->framebuffer = (uint32_t *) fb.data;
-		uzebox.vdrv->stride = fb.pitch >> 2;
+		uzebox.vdrv->stride = fb.pitch >> PIXEL_SIZE_SHIFT;
 	} else {
 		uzebox.vdrv->framebuffer = framebuffer;
 		uzebox.vdrv->stride = width;
@@ -312,7 +322,7 @@ void retro_run(void)
    */
    
 
-	video_cb(uzebox.vdrv->framebuffer, width, height, uzebox.vdrv->stride << 2);
+	video_cb(uzebox.vdrv->framebuffer, width, height, uzebox.vdrv->stride << PIXEL_SIZE_SHIFT);
 }
 
 void retro_unload_game(void)

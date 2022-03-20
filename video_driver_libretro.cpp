@@ -31,10 +31,21 @@ extern video_driver_t video_driver_libretro;
 
 static bool video_driver_libretro_init(const char *caption, bool fullscreen, int sdl_flags) { return true; }
 
+#ifdef USE_RGB565
+typedef uint16_t pixel_t;
+#else
+typedef uint32_t pixel_t;
+#endif
+
 static uint32_t video_driver_libretro_map_rgb(uint8_t red, uint8_t green, uint8_t blue)
 {
-	uint32_t col = ((uint32_t)red) << 16 | ((uint32_t)green) << 8 | ((uint32_t)blue) ;
-	return col;
+#if defined(ABGR1555)
+        return ((blue & 0xf8) << 7) | ((green & 0xf8) << 2) | ((red & 0xf8) >> 3);
+#elif defined(USE_RGB565)
+        return ((red & 0xf8) << 8) | ((green & 0xfc) << 3) | ((blue & 0xf8) >> 3);
+#else
+        return ((uint32_t)red) << 16 | ((uint32_t)green) << 8 | ((uint32_t)blue) ;
+#endif
 }
 
 // Renders a line into a 32 bit output buffer.
@@ -44,14 +55,14 @@ static void video_driver_libretro_render_line(unsigned int scanline, uint8_t *sr
 	if (half_width)
    {
       unsigned int i;
-      uint32_t *dest = (uint32_t *)((uint8_t *)video_driver_libretro.framebuffer + scanline * video_driver_libretro.stride * 4);
+      pixel_t *dest = (pixel_t *)((uint8_t *)video_driver_libretro.framebuffer + scanline * video_driver_libretro.stride * sizeof(pixel_t));
       for (i = 0; i < VIDEO_DISP_WIDTH / 2; i++)
          dest[i] = palette[src[((i << 2) + spos) & 0x7FFU]];
    }
    else
    {
       unsigned int i;
-      uint32_t *dest = (uint32_t *)((uint8_t *)video_driver_libretro.framebuffer + scanline * video_driver_libretro.stride * 4);
+      pixel_t *dest = (pixel_t *)((uint8_t *)video_driver_libretro.framebuffer + scanline * video_driver_libretro.stride * sizeof(pixel_t));
       for (i = 0; i < VIDEO_DISP_WIDTH; i++)
          dest[i] = palette[src[((i << 1) + spos) & 0x7FFU]];
    }
