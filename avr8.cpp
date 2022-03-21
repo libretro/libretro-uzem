@@ -2394,7 +2394,7 @@ void avr8::update_spi(){
     }    
 }
 
-
+#ifndef __LIBRETRO__
 void avr8::SDLoadImage(char* filename){
     if(sdImage){
         printf("SD Image file already specified.");
@@ -2406,6 +2406,7 @@ void avr8::SDLoadImage(char* filename){
         shutdown(1);
     }
 }
+#endif
 
 
 void avr8::SDBuildMBR(SDPartitionEntry* entry){
@@ -2459,6 +2460,7 @@ void avr8::SDSeekToOffset(u32 pos){
     }
 }
 
+#ifndef __LIBRETRO__
 void avr8::LoadEEPROMFile(const char* filename){
     eepromFile = filename;
     memset(eeprom,0xff,eepromSize);
@@ -2484,6 +2486,7 @@ void avr8::LoadEEPROMFile(const char* filename){
         printf("EEPROM file not found, continuing with emulation.\n");
     }
 }
+#endif
 
 void avr8::shutdown(int errcode){
 #if defined(__WIN32__) && !defined(__LIBRETRO__)
@@ -2492,9 +2495,11 @@ void avr8::shutdown(int errcode){
         VirtualFree (lpSector, 0, MEM_RELEASE);
     }        
 #endif
+#ifndef __LIBRETRO__
     if(sdImage){
         fclose(sdImage);
     }
+#endif
     if(emulatedMBR){
         free(emulatedMBR);
     }

@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+#define SKIP_STDIO_REDEFINES 1
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -28,8 +29,9 @@ THE SOFTWARE.
 #include <sys/types.h>
 #include <stdio.h>
 #include <math.h>
-#include <sys/stat.h>
-#include <dirent.h>
+#include <retro_dirent.h>
+#include <vfs/vfs_implementation.h>
+#include <streams/file_stream_transforms.h>
 #include "SDEmulator.h"
 
 /* bootsector jump instruction */
@@ -44,11 +46,13 @@ static int clusterSize;
 
 static bool hexDebug=false;
 
+extern struct retro_vfs_interface *vfs_interface;
+
 void SDEmu::debug(bool value){
 	hexDebug=value;
 }
 
-static void long2shortfilename(char *dst, char *src) {
+static void long2shortfilename(char *dst, const char *src) {
 	int i;
 	for (i = 0; i < 8; ++i) {
 		if (*src == '.') {
@@ -57,7 +61,7 @@ static void long2shortfilename(char *dst, char *src) {
 		}
 		*dst++ = toupper(*src++);
 	}
-	char *dot = strchr(src, '.') + 1;
+	const char *dot = strchr(src, '.') + 1;
 	if (dot > src) {
 		for (i = 0; i < 3; ++i) {
 			if (*dot != 0) {
@@ -69,7 +73,6 @@ static void long2shortfilename(char *dst, char *src) {
 
 int SDEmu::init_with_directory(const char *path) {
 	int i;
-	struct stat st;
 
 	//2G SD card, 32k per cluster FAT16
 	memcpy(&bootsector.bootjmp, bootjmp, 3);
@@ -100,7 +103,7 @@ int SDEmu::init_with_directory(const char *path) {
 	posDataSector = posRootDir + (((bootsector.root_entry_count * 32) / bootsector.bytes_per_sector) * bootsector.bytes_per_sector);
 	clusterSize =  bootsector.bytes_per_sector*bootsector.sectors_per_cluster;
 
-	DIR *dir = opendir(path);
+	RDIR *dir = retro_opendir(path);
 	if (dir == NULL) {
 		return -1;
 	}
@@ -110,33 +113,41 @@ int SDEmu::init_with_directory(const char *path) {
 	toc[0].attrib = SDEFA_ARCHIVE | SDEFA_VOLUME_ID;
 
 	i = 1;
-	struct dirent *entry;
 	int freecluster = 2;
 	printf("SD Emulation of following files:\n");
-	while ((entry = readdir(dir))) {
-		if (entry && entry->d_name[0] != '.') {
-			char *statpath = (char *)malloc(strlen(path) + strlen(entry->d_name) + 2);
+	while (retro_readdir(dir)) {
+		const char *d_name = retro_dirent_get_name(dir);
+		if (d_name[0] != '.') {
+			char *statpath = (char *)malloc(strlen(path) + strlen(d_name) + 2);
+			int statflags = 0;
+			int32_t stat_size = 0;
+			
 			strcpy(statpath, path);
 			strcat(statpath, "/");
-			strcat(statpath, entry->d_name);
-			stat(statpath, &st);
+			strcat(statpath, d_name);
+			if (vfs_interface)
+				statflags = vfs_interface->stat(statpath, &stat_size);
+			else
+				statflags = retro_vfs_stat_impl(statpath, &stat_size);
+			if (!(statflags & RETRO_VFS_STAT_IS_VALID) || (statflags & (RETRO_VFS_STAT_IS_DIRECTORY | RETRO_VFS_STAT_IS_CHARACTER_SPECIAL)))
+				continue;
 			paths[i] = statpath;
 
 			memset(toc[i].name, 32, 11);
-			long2shortfilename((char *)toc[i].name, (char *)entry->d_name);
+			long2shortfilename((char *)toc[i].name, d_name);
 
 			toc[i].attrib = SDEFA_ARCHIVE;
 			toc[i].cluster_no = freecluster;
 
 			//Fill the FAT with the file's cluster chain
-			int fileClustersCount=ceil(st.st_size / (bootsector.sectors_per_cluster * 512.0f));
+			int fileClustersCount=ceil(stat_size / (bootsector.sectors_per_cluster * 512.0f));
 			for(int j=freecluster;j<(freecluster+fileClustersCount-1);j++){
 				clusters[j]=j+1;
 			}
 			clusters[freecluster+fileClustersCount-1]=0xffff; //Last cluster in file marker (EOC)
 
-			toc[i].filesize = st.st_size;
-			printf("\t%d: %s:%ld\n", i, entry->d_name, st.st_size);
+			toc[i].filesize = stat_size;
+			printf("\t%d: %s:%ld\n", i, d_name, stat_size);
 			freecluster += fileClustersCount;
 			if (++i == MAX_FILES) {
 				break;
@@ -150,7 +161,7 @@ void SDEmu::read(unsigned char *ptr) {
 	static int lastfile=-1;
 	static int lastfileStart=0;
 	static int lastfileEnd=0;
-	static FILE *fp=0;
+	static RFILE *fp=0;
 	static int lastPos=0;
 
 	int pos;
@@ -191,10 +202,10 @@ void SDEmu::read(unsigned char *ptr) {
 					lastfileEnd = lastfileStart + (((toc[i].filesize/clusterSize)+1)*clusterSize)-1; //account for cluster size padding
 
 					if (fp != NULL) {
-						fclose(fp);
+						rfclose(fp);
 					}
 					//printf("Opening file: %s, start=%d, end=%d, cluster=%d\n", paths[i],lastfileStart,lastfileEnd, cluster);
-					fp = fopen(paths[i], "rb");
+					fp = rfopen(paths[i], "rb");
 					lastPos=-1;
 					break;
 				}
@@ -203,11 +214,11 @@ void SDEmu::read(unsigned char *ptr) {
 		if (lastfile == -1 || fp == NULL) { *ptr++ = 0; }
 		else {
 			if(pos!=(lastPos+1)){
-				fseek(fp, pos - ((toc[lastfile].cluster_no-2)*clusterSize), SEEK_SET);
+				rfseek(fp, pos - ((toc[lastfile].cluster_no-2)*clusterSize), SEEK_SET);
 			}
 
 			if(pos<(lastfileStart+toc[lastfile].filesize)){
-				c= fgetc(fp);
+				c= rfgetc(fp);
 			}else{
 				c=0;
 			}
