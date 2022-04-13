@@ -390,18 +390,26 @@ bool retro_unserialize(const void *data, size_t size)
 
 void *retro_get_memory_data(unsigned id)
 {
-   if (id != RETRO_MEMORY_SAVE_RAM)
-      return NULL;
-
-   return uzebox.eeprom;
+   switch (id) {
+   case RETRO_MEMORY_SAVE_RAM:
+     return uzebox.eeprom;
+   case RETRO_MEMORY_SYSTEM_RAM:
+     return &uzebox.sram[0];
+   default:
+     return NULL;
+   }
 }
 
 size_t retro_get_memory_size(unsigned id)
 {
-   if (id != RETRO_MEMORY_SAVE_RAM)
-      return 0;
-
-   return eepromSize;
+   switch (id) {
+   case RETRO_MEMORY_SAVE_RAM:
+     return eepromSize;
+   case RETRO_MEMORY_SYSTEM_RAM:
+     return sizeof(uzebox.sram);
+   default:
+     return 0;
+   }
 }
 
 void retro_cheat_reset(void)
