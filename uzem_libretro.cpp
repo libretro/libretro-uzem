@@ -33,7 +33,9 @@ THE SOFTWARE.
 #include <stdlib.h>
 #include <stdarg.h>
 #include <time.h>
-
+#include <retro_dirent.h>
+#include <vfs/vfs_implementation.h>
+#include <streams/file_stream.h>
 #include <retro_endianness.h>
 
 avr8 uzebox;
@@ -46,6 +48,7 @@ extern video_driver_t video_driver_libretro;
 static uint32_t *framebuffer = NULL;
 bool done_rendering;
 bool half_width;
+struct retro_vfs_interface *vfs_interface;
 
 static float last_aspect;
 static float last_sample_rate;
@@ -143,11 +146,21 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
 void retro_set_environment(retro_environment_t cb)
 {
 	struct retro_log_callback logging;
+	struct retro_vfs_interface_info vfs_interface_info;
 
 	environ_cb = cb;
 
 	if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
 		log_cb = logging.log;
+
+	vfs_interface_info.required_interface_version = DIRENT_REQUIRED_VFS_VERSION;
+	vfs_interface_info.iface = NULL;
+	if(cb(RETRO_ENVIRONMENT_GET_VFS_INTERFACE, &vfs_interface_info)) {
+		vfs_interface = vfs_interface_info.iface;
+		dirent_vfs_init(&vfs_interface_info);
+		filestream_vfs_init(&vfs_interface_info);
+	}
+
 
 	bool no_content = false;
 	cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_content);

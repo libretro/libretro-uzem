@@ -249,7 +249,10 @@ struct avr8
 #if defined(__WIN32__) && !defined(__LIBRETRO__)
 		hDisk(INVALID_HANDLE_VALUE),
 #endif
- sdImage(0),emulatedMBR(0),SDpath(NULL)
+#ifndef __LIBRETRO__
+ sdImage(0),
+#endif
+		emulatedMBR(0),SDpath(NULL)
 
 	{
 		memset(r, 0, sizeof(r));
@@ -435,7 +438,9 @@ public:
     LPBYTE lpSector;
 #endif
     u32 lpSectorIndex;
+#ifndef __LIBRETRO__
     FILE* sdImage;
+#endif
     u8* emulatedMBR;
     u32 emulatedReadPos;
     size_t emulatedMBRLength;

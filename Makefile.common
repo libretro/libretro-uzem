@@ -6,6 +6,19 @@ SOURCES_CXX := \
 					$(CORE_DIR)/input_driver_libretro.cpp \
 					$(CORE_DIR)/SDEmulator.cpp \
 					$(CORE_DIR)/uzem_libretro.cpp \
-					$(CORE_DIR)/uzerom.cpp \
 					$(CORE_DIR)/video_driver_libretro.cpp
 
+ifneq ($(STATIC_LINKING), 1)
+SOURCES_C += $(CORE_DIR)/libretro-common/compat/compat_posix_string.c \
+	     $(CORE_DIR)/libretro-common/compat/compat_snprintf.c \
+	     $(CORE_DIR)/libretro-common/compat/compat_strl.c \
+	     $(CORE_DIR)/libretro-common/compat/fopen_utf8.c \
+	     $(CORE_DIR)/libretro-common/encodings/encoding_utf.c \
+	     $(CORE_DIR)/libretro-common/file/file_path.c \
+	     $(CORE_DIR)/libretro-common/file/retro_dirent.c \
+	     $(CORE_DIR)/libretro-common/streams/file_stream.c \
+	     $(CORE_DIR)/libretro-common/streams/file_stream_transforms.c \
+	     $(CORE_DIR)/libretro-common/string/stdstring.c \
+	     $(CORE_DIR)/libretro-common/time/rtime.c \
+	     $(CORE_DIR)/libretro-common/vfs/vfs_implementation.c
+endif
