@@ -103,7 +103,7 @@ else ifeq ($(platform), tvos-arm64)
    TARGET := $(TARGET_NAME)_libretro_tvos.$(EXT)
    fpic := -fPIC
    LDFLAGS += -dynamiclib
-   COMMONFLAGS += -DHAVE_POSIX_MEMALIGN=1 -marm
+   COMMONFLAGS += -DHAVE_POSIX_MEMALIGN=1
    COMMONFLAGS += -DIOS
 ifeq ($(IOSSDK),)
    IOSSDK := $(shell xcodebuild -version -sdk appletvos Path)
